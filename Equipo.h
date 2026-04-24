@@ -3,25 +3,42 @@
 
 #include <string>
 #include "Jugador.h"
-#include "ListaDinamica.h" // Incluir la clase ListaDinamica para su uso
+#include "ListaDinamica.h"
 
 class Equipo {
 private:
+    // Atributos de identificación
     std::string pais;
+    int rankingFIFA;
+
+    // Estadisticas requeridas por el UML
     int golesFavor;
+    int golesContra;
     int puntos;
-    // Lista requerida por el UML. Implementar como template de tipo Jugador*.
+    int victorias;
+    int empates;
+    int derrotas;
+
+    // Estructura de datos 
     ListaDinamica<Jugador*> plantilla;
 
 public:
-    Equipo(std::string nombre);
+    // Constructor 
+    Equipo(std::string nombre, int ranking);
 
-    // Implementar métodos de acceso (getters/setters) para los atributos.
-    void setGoles(int g);
+    // Métodos de acceso (Getters y Setters)
+    // Estos van en la sección public para que otras clases puedan consultarlos
+    void setGolesFavor(int g);
+    void setGolesContra(int g);
+    void setPuntos(int p);
+    
+    // Getters
     std::string getPais() const;
-
-    // Método para agregar jugadores a la estructura dinámica.
-    void agregarJugador(Jugador* j);
+    int getRanking() const;
+    int getPuntos() const;
+    
+    // Metodo para agregar jugadores
+    void agregarJugador(Jugador* j); 
 };
 
 #endif
