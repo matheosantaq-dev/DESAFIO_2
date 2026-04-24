@@ -1,23 +1,36 @@
 #include <iostream>
-#include "Jugador.h"
-#include "Equipo.h"
-#include "Partido.h"
+#include "GestorCSV.h"
+#include "Torneo.h" // Asegúrate de tener tu clase Torneo bien definida
 #include "Grupo.h"
+#include "ListaDinamica.h"
 
 int main() {
-    // Uso de punteros para gestión de memoria dinámica, según requerimientos del desafío.
-    Equipo* e1 = new Equipo("Colombia");
-    Equipo* e2 = new Equipo("Argentina");
+    std::cout << "Iniciando sistema de simulacion..." << std::endl;
 
-    // Prueba de simulación del partido.
-    Partido* p = new Partido(e1, e2);
-    p->simular();
+    // 1. CARGA DE DATOS 
+    GestorCSV gestor("data/selecciones_clasificadas_mundial.csv");
+    ListaDinamica<Equipo*> equipos = gestor.cargarEquipos();
 
-    // Liberar memoria asignada dinámicamente para evitar memory leaks.
-    delete p;
-    delete e1;
-    delete e2;
+    if (equipos.getTamanio() == 0) {
+        std::cerr << "Error: No se cargaron equipos. Revisa el archivo CSV." << std::endl;
+        return 1;
+    }
 
-    std::cout << "\nSistema funcional." << std::endl;
+    
+    //  clase Torneo que maneja los 12 grupos
+    Torneo mundial;
+    mundial.organizarBombos(equipos); 
+    mundial.crearGrupos();           
+    
+    // 3. SIMULACIÓN
+    std::cout << "Simulando fase de grupos..." << std::endl;
+    mundial.simularFaseGrupos();
+
+    // 4. RESULTADOS
+    mundial.generarEstadisticas();
+
+    // 5. LIMPIEZA
+    // La memoria dinámica debería liberarse en los destructores de Torneo y ListaDinamica.
+    std::cout << "\nSimulacion completada exitosamente." << std::endl;
     return 0;
 }
