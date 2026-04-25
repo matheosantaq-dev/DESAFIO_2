@@ -9,6 +9,9 @@ private:
     Equipo* visitante;
     int golesLocal;
     int golesVisitante;
+    double calcularLambda(Equipo* ataque, Equipo* defensa);
+    double posesionLocal;
+    double posesionVisitante;
 
 public:
     // Constructor
@@ -16,7 +19,8 @@ public:
 
     // Método principal para la lógica de simulación
     void simular();
-
+    // Se agrega printResumen para poder mostrar los resultados del partido
+    void printResumen() const;
     // Getters para acceder a la información del partido si se requiere
     Equipo* getLocal() const { return local; }
     Equipo* getVisitante() const { return visitante; }
