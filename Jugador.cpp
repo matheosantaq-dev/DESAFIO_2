@@ -6,13 +6,13 @@
 // ─────────────────────────────────────────────
 Jugador::Jugador(const std::string& nombre, const std::string& apellido, int dorsal)
     : nombre(nombre), apellido(apellido), dorsal(dorsal),
-      golesHistoricos(0), asistenciasHistoricas(0),
-      amarillasHistoricas(0), rojasHistoricas(0),
-      faltasHistoricas(0), minutosHistoricos(0),
-      partidosJugadosHistoricos(0),
-      golesTemp(0), asistenciasTemp(0),
-      amarillasTemp(0), rojasTemp(0),
-      faltasTemp(0), minutosTemp(0)
+    golesHistoricos(0), asistenciasHistoricas(0),
+    amarillasHistoricas(0), rojasHistoricas(0),
+    faltasHistoricas(0), minutosHistoricos(0),
+    partidosJugadosHistoricos(0),
+    golesTemp(0), asistenciasTemp(0),
+    amarillasTemp(0), rojasTemp(0),
+    faltasTemp(0), minutosTemp(0)
 {}
 
 // ─────────────────────────────────────────────
@@ -20,16 +20,16 @@ Jugador::Jugador(const std::string& nombre, const std::string& apellido, int dor
 // ─────────────────────────────────────────────
 Jugador::Jugador(const Jugador& otro)
     : nombre(otro.nombre), apellido(otro.apellido), dorsal(otro.dorsal),
-      golesHistoricos(otro.golesHistoricos),
-      asistenciasHistoricas(otro.asistenciasHistoricas),
-      amarillasHistoricas(otro.amarillasHistoricas),
-      rojasHistoricas(otro.rojasHistoricas),
-      faltasHistoricas(otro.faltasHistoricas),
-      minutosHistoricos(otro.minutosHistoricos),
-      partidosJugadosHistoricos(otro.partidosJugadosHistoricos),
-      golesTemp(otro.golesTemp), asistenciasTemp(otro.asistenciasTemp),
-      amarillasTemp(otro.amarillasTemp), rojasTemp(otro.rojasTemp),
-      faltasTemp(otro.faltasTemp), minutosTemp(otro.minutosTemp)
+    golesHistoricos(otro.golesHistoricos),
+    asistenciasHistoricas(otro.asistenciasHistoricas),
+    amarillasHistoricas(otro.amarillasHistoricas),
+    rojasHistoricas(otro.rojasHistoricas),
+    faltasHistoricas(otro.faltasHistoricas),
+    minutosHistoricos(otro.minutosHistoricos),
+    partidosJugadosHistoricos(otro.partidosJugadosHistoricos),
+    golesTemp(otro.golesTemp), asistenciasTemp(otro.asistenciasTemp),
+    amarillasTemp(otro.amarillasTemp), rojasTemp(otro.rojasTemp),
+    faltasTemp(otro.faltasTemp), minutosTemp(otro.minutosTemp)
 {}
 
 // ─────────────────────────────────────────────
