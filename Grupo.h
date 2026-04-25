@@ -10,7 +10,7 @@ class Grupo {
 private:
     char id;
     int numPartidos;
-   
+
     ListaDinamica<Equipo*> equipos;
     ListaDinamica<Partido*> partidos;
 
@@ -23,12 +23,13 @@ public:
     void simularFaseGrupal();
     void construirTablaClasificacion();
     void mostrarResultados() const;
-    void mostrarTabla() const;
-    
-   
+    void mostrarTabla();
+
+
     char getId() const { return id; }
     int getNumEquipos() const { return equipos.getTamanio(); }
 };
 
+#endif
 #endif
    
