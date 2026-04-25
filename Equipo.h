@@ -19,11 +19,11 @@ private:
     int empates;
     int derrotas;
 
-    // Estructura de datos 
+    // Estructura de datos
     ListaDinamica<Jugador*> plantilla;
 
 public:
-    // Constructor 
+    // Constructor
     Equipo(std::string nombre, int ranking);
 
     // Métodos de acceso (Getters y Setters)
@@ -31,14 +31,28 @@ public:
     void setGolesFavor(int g);
     void setGolesContra(int g);
     void setPuntos(int p);
-    
+    void setVictorias(int v);
+    void setEmpates(int e);
+    void setDerrotas(int d);
+
     // Getters
     std::string getPais() const;
     int getRanking() const;
     int getPuntos() const;
-    
+    int getGolesFavor() const;
+    int getGolesContra() const;
+    int getVictorias() const;
+    int getEmpates() const;
+    int getDerrotas() const;
+
+    /*se agregan estos setters y getters por que se necesita modificar y consultar estadisticas*/
+    Jugador* getJugador(int i);
+    int getCantidadJugadores() const;
+    Jugador* getJugador(int index) const;
     // Metodo para agregar jugadores
-    void agregarJugador(Jugador* j); 
+    void agregarJugador(Jugador* j);
 };
+
+#endif
 
 #endif
