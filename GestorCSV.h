@@ -13,11 +13,11 @@ private:
 
 public:
     GestorCSV(std::string ruta);
-    
+
     // Lee el archivo y retorna una lista de punteros a Equipo
-    
+
     ListaDinamica<Equipo*> cargarEquipos();
-    
+
     void cerrarArchivo();
 };
 
