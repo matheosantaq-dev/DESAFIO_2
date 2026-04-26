@@ -1,227 +1,191 @@
 #include "Torneo.h"
 #include "Medidor.h"
 #include <iostream>
-#include <cstdlib>
 
 // Constructor
 Torneo::Torneo()
-    : totalGoles(0),
-    campeon(nullptr),
-    subcampeon(nullptr),
-    tercerLugar(nullptr)
+    : totalGoles(0), campeon(nullptr),
+    subcampeon(nullptr), tercerLugar(nullptr)
 {
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 12; j++) {
+    for (int i = 0; i < 4; i++)
+        for (int j = 0; j < 12; j++)
             bombos[i][j] = nullptr;
-        }
-    }
 }
 
 // Destructor
 Torneo::~Torneo() {
     for (int i = 0; i < grupos.getTamanio(); i++) {
-        Medidor::it();
-
-        Grupo* g = grupos.obtener(i);
-        if (g) {
-            delete g;
-        }
+        delete grupos.obtener(i);
     }
 }
 
-// Organizar bombos
+// Bombos
 void Torneo::organizarBombos(ListaDinamica<Equipo*>& listaEquipos) {
-    if (listaEquipos.getTamanio() < 48) {
-        std::cerr << "Error: Se requieren 48 equipos.\n";
-        return;
-    }
 
     listaEquipos.ordenarPorRanking();
 
-    int index = 0;
+    int k = 0;
 
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 12; j++) {
-            Medidor::it();
-
-            bombos[i][j] = listaEquipos.obtener(index);
-            index++;
-        }
-    }
-
-    std::cout << "Bombos organizados correctamente.\n";
+    for (int i = 0; i < 4; i++)
+        for (int j = 0; j < 12; j++)
+            bombos[i][j] = listaEquipos.obtener(k++);
 }
 
 // Crear grupos
 void Torneo::crearGrupos() {
-    for (int i = 0; i < 12; i++) {
-        Medidor::it();
 
-        Grupo* grupo = new Grupo('A' + i);
+    grupos.limpiar();
+
+    for (int i = 0; i < 12; i++) {
+
+        Grupo* g = new Grupo('A' + i);
 
         for (int b = 0; b < 4; b++) {
-            if (bombos[b][i]) {
-                grupo->agregarEquipo(bombos[b][i]);
-            }
+            g->agregarEquipo(bombos[b][i]);
         }
 
-        grupo->organizarEncuentros("01/06/2026");
-
-        grupos.insertarAlFinal(grupo);
+        g->organizarEncuentros("01/06/2026");
+        grupos.insertarAlFinal(g);
     }
+
+    std::cout << "Grupos creados correctamente\n";
 }
 
-// Simular grupos
+// Fase grupos
 void Torneo::simularFaseGrupos() {
+
     for (int i = 0; i < grupos.getTamanio(); i++) {
-        Medidor::it();
-
-        Grupo* grupo = grupos.obtener(i);
-
-        if (grupo) {
-            grupo->simularFaseGrupal();
-            grupo->mostrarResultados();
-        }
+        Grupo* g = grupos.obtener(i);
+        g->simularFaseGrupal();
+        g->mostrarResultados();
     }
 
     clasificarEquipos();
 }
 
-// Clasificar primeros 2 de cada grupo
+// Clasificación
 void Torneo::clasificarEquipos() {
+
     clasificados.limpiar();
 
     for (int i = 0; i < grupos.getTamanio(); i++) {
-        Medidor::it();
 
-        Grupo* grupo = grupos.obtener(i);
+        Grupo* g = grupos.obtener(i);
 
-        if (!grupo) continue;
+        Equipo** top2 = g->getClasificados();
 
-        grupo->ordenarTabla();
+        clasificados.insertarAlFinal(top2[0]);
+        clasificados.insertarAlFinal(top2[1]);
 
-        Equipo* primero = grupo->getEquipo(0);
-        Equipo* segundo = grupo->getEquipo(1);
-
-        if (primero) clasificados.insertarAlFinal(primero);
-        if (segundo) clasificados.insertarAlFinal(segundo);
+        delete[] top2;
     }
 
-    std::cout << "\nClasificados a dieciseisavos: "
+    std::cout << "\nClasificados: "
               << clasificados.getTamanio()
               << " equipos.\n";
 }
 
-// Simular ronda eliminatoria
-void Torneo::avanzarRonda(
-    ListaDinamica<Equipo*>& participantes,
-    ListaDinamica<Equipo*>& ganadores,
-    const std::string& fase
-    ) {
-    std::cout << "\n=== " << fase << " ===\n";
+//  FUNCIÓN CLAVE
+Equipo* jugarPartido(Equipo* a, Equipo* b, Equipo*& perdedor) {
 
-    for (int i = 0; i < participantes.getTamanio(); i += 2) {
-        Medidor::it();
+    Partido p(a, b, "20/06/2026", "Estadio");
+    p.simular(true);
+    p.printResumen();
 
-        Equipo* a = participantes.obtener(i);
-        Equipo* b = participantes.obtener(i + 1);
-
-        if (!a || !b) continue;
-
-        Partido partido(a, b);
-        partido.simular(true);
-        partido.printResumen();
-
-        Equipo* ganador =
-            (partido.getGolesLocal() > partido.getGolesVisitante())
-                ? a
-                : b;
-
-        ganadores.insertarAlFinal(ganador);
+    if (p.getGolesLocal() > p.getGolesVisitante()) {
+        perdedor = b;
+        return a;
+    } else {
+        perdedor = a;
+        return b;
     }
 }
 
-// Eliminatorias completas
 void Torneo::simularEliminatorias() {
-    ListaDinamica<Equipo*> rondaActual = clasificados;
 
-    ListaDinamica<Equipo*> dieciseisavos;
-    avanzarRonda(rondaActual, dieciseisavos, "Dieciseisavos");
+    ListaDinamica<Equipo*> ronda = clasificados;
 
-    ListaDinamica<Equipo*> octavos;
-    avanzarRonda(dieciseisavos, octavos, "Octavos");
+    //  PRIMER FILTRO: 24 → 16
+    ListaDinamica<Equipo*> ronda16;
 
-    ListaDinamica<Equipo*> cuartos;
-    avanzarRonda(octavos, cuartos, "Cuartos");
+    std::cout << "\n=== DIECISEISAVOS ===\n";
 
-    ListaDinamica<Equipo*> semifinalistas;
-    avanzarRonda(cuartos, semifinalistas, "Semifinales");
+    for (int i = 0; i < 16; i++) {
+        ronda16.insertarAlFinal(ronda.obtener(i));
+    }
 
-    // Tercer lugar
-    Partido tercerPuesto(
-        semifinalistas.obtener(0),
-        semifinalistas.obtener(1)
-        );
+    ronda = ronda16;
 
-    tercerPuesto.simular(true);
+    // RONDAS NORMALES
+    while (ronda.getTamanio() > 4) {
 
-    tercerLugar =
-        (tercerPuesto.getGolesLocal() >
-         tercerPuesto.getGolesVisitante())
-            ? semifinalistas.obtener(0)
-            : semifinalistas.obtener(1);
+        ListaDinamica<Equipo*> siguiente;
 
-    // Final
-    ListaDinamica<Equipo*> finalistas;
-    avanzarRonda(semifinalistas, finalistas, "Final");
+        std::cout << "\n=== RONDA ===\n";
 
-    if (finalistas.getTamanio() >= 2) {
-        Partido final(finalistas.obtener(0), finalistas.obtener(1));
-        final.simular(true);
+        for (int i = 0; i < ronda.getTamanio(); i += 2) {
 
-        if (final.getGolesLocal() > final.getGolesVisitante()) {
-            campeon = finalistas.obtener(0);
-            subcampeon = finalistas.obtener(1);
-        } else {
-            campeon = finalistas.obtener(1);
-            subcampeon = finalistas.obtener(0);
+            Equipo* perdedor;
+            Equipo* ganador = jugarPartido(
+                ronda.obtener(i),
+                ronda.obtener(i + 1),
+                perdedor
+                );
+
+            siguiente.insertarAlFinal(ganador);
         }
 
-        std::cout << "\n=== FINAL ===\n";
-        final.printResumen();
+        ronda = siguiente;
     }
+
+    //  SEMIFINALES
+    std::cout << "\n=== SEMIFINALES ===\n";
+
+    Equipo* perd1;
+    Equipo* finalista1 = jugarPartido(ronda.obtener(0), ronda.obtener(1), perd1);
+
+    Equipo* perd2;
+    Equipo* finalista2 = jugarPartido(ronda.obtener(2), ronda.obtener(3), perd2);
+
+    //  TERCER PUESTO
+    std::cout << "\n=== TERCER PUESTO ===\n";
+
+    Equipo* basura;
+    tercerLugar = jugarPartido(perd1, perd2, basura);
+
+    // FINAL
+    std::cout << "\n=== FINAL ===\n";
+
+    Equipo* perdFinal;
+    campeon = jugarPartido(finalista1, finalista2, perdFinal);
+    subcampeon = perdFinal;
 }
 
 // Estadísticas
 void Torneo::generarEstadisticas() {
+
     for (int i = 0; i < grupos.getTamanio(); i++) {
-        Medidor::it();
-
-        Grupo* grupo = grupos.obtener(i);
-
-        if (grupo) {
-            grupo->mostrarTabla();
-        }
+        grupos.obtener(i)->mostrarTabla();
     }
 
     mostrarPodio();
 }
 
-// Mostrar podio
+// Podio
 void Torneo::mostrarPodio() {
+
     std::cout << "\n=========== PODIO MUNDIAL ===========\n";
 
-    if (campeon) {
-        std::cout << "🥇 Campeón: " << campeon->getPais() << "\n";
-    }
+    if (campeon)
+        std::cout << "Campeon: " << campeon->getPais() << "\n";
+    else
+        std::cout << "Campeon: N/A\n";
 
-    if (subcampeon) {
-        std::cout << "🥈 Subcampeón: " << subcampeon->getPais() << "\n";
-    }
+    if (subcampeon)
+        std::cout << "Subcampeon: " << subcampeon->getPais() << "\n";
 
-    if (tercerLugar) {
-        std::cout << "🥉 Tercer Lugar: " << tercerLugar->getPais() << "\n";
-    }
+    if (tercerLugar)
+        std::cout << "Tercer Lugar: " << tercerLugar->getPais() << "\n";
 
     std::cout << "=====================================\n";
 }
@@ -230,4 +194,3 @@ void Torneo::mostrarPodio() {
 ListaDinamica<Grupo*>& Torneo::getGrupos() {
     return grupos;
 }
-
