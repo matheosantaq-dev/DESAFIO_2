@@ -9,13 +9,16 @@
 class GestorCSV {
 private:
     std::string path;
+    std::ifstream archivo;
 
 public:
     // Constructor
-    GestorCSV(std::string ruta);
+    GestorCSV(std::string ruta = "selecciones_clasificadas_mundial.csv");
 
-  
-    // retorna punteros 
+    // Destructor
+    ~GestorCSV();
+
+    // Cargar equipos desde CSV
     ListaDinamica<Equipo*> cargarEquipos();
 };
 
