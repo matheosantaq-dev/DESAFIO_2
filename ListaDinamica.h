@@ -2,7 +2,6 @@
 #define LISTADINAMICA_H
 
 #include "Nodo.h"
-#include <iostream>
 
 template <typename T>
 class ListaDinamica {
@@ -14,16 +13,32 @@ public:
     // Constructor
     ListaDinamica() : cabeza(nullptr), tamano(0) {}
 
-    // Constructor copia
-    ListaDinamica(const ListaDinamica<T>& otra) {
-        cabeza = nullptr;
-        tamano = 0;
-
+    // Constructor de copia
+    ListaDinamica(const ListaDinamica<T>& otra)
+        : cabeza(nullptr), tamano(0)
+    {
         Nodo<T>* actual = otra.cabeza;
+
         while (actual != nullptr) {
             insertarAlFinal(actual->getDato());
             actual = actual->getSiguiente();
         }
+    }
+
+    // Operador de asignación
+    ListaDinamica<T>& operator=(const ListaDinamica<T>& otra) {
+        if (this != &otra) {
+            limpiar();
+
+            Nodo<T>* actual = otra.cabeza;
+
+            while (actual != nullptr) {
+                insertarAlFinal(actual->getDato());
+                actual = actual->getSiguiente();
+            }
+        }
+
+        return *this;
     }
 
     // Destructor
@@ -32,16 +47,18 @@ public:
     }
 
     // Insertar al final
-    void insertarAlFinal(const T& valor) {
+    void insertarAlFinal(T valor) {
         Nodo<T>* nuevoNodo = new Nodo<T>(valor);
 
         if (cabeza == nullptr) {
             cabeza = nuevoNodo;
         } else {
             Nodo<T>* temp = cabeza;
+
             while (temp->getSiguiente() != nullptr) {
                 temp = temp->getSiguiente();
             }
+
             temp->setSiguiente(nuevoNodo);
         }
 
@@ -53,18 +70,14 @@ public:
         return tamano;
     }
 
-    // Verificar si está vacía
-    bool estaVacia() const {
-        return cabeza == nullptr;
-    }
-
-    // Obtener por índice
+    // Obtener elemento por índice
     T obtener(int indice) const {
         if (indice < 0 || indice >= tamano) {
             return T();
         }
 
         Nodo<T>* temp = cabeza;
+
         for (int i = 0; i < indice; i++) {
             temp = temp->getSiguiente();
         }
@@ -108,25 +121,31 @@ public:
         tamano = 0;
     }
 
-    // Ordenar por ranking FIFA 
+    // Ordenar por ranking FIFA (para punteros a Equipo)
     void ordenarPorRanking() {
-        if (tamano < 2) return;
-
-        for (int i = 0; i < tamano - 1; i++) {
+        for (int i = 0; i < tamano; i++) {
             for (int j = i + 1; j < tamano; j++) {
-                T datoI = obtener(i);
-                T datoJ = obtener(j);
 
-                if (datoI->getRanking() > datoJ->getRanking()) {
-                    intercambiar(i, j);
+                Nodo<T>* a = cabeza;
+                Nodo<T>* b = cabeza;
+
+                for (int k = 0; k < i; k++) {
+                    a = a->getSiguiente();
+                }
+
+                for (int k = 0; k < j; k++) {
+                    b = b->getSiguiente();
+                }
+
+                if (a->getDato()->getRanking() >
+                    b->getDato()->getRanking()) {
+
+                    T temp = a->getDato();
+                    a->setDato(b->getDato());
+                    b->setDato(temp);
                 }
             }
         }
-    }
-
-    // Sobrecarga operador []
-    T operator[](int indice) const {
-        return obtener(indice);
     }
 };
 
