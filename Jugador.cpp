@@ -1,45 +1,52 @@
 #include "Jugador.h"
+#include "Medidor.h"
 #include <sstream>
 
-// ─────────────────────────────────────────────
+
 // Constructor principal
-// ─────────────────────────────────────────────
+
 Jugador::Jugador(const std::string& nombre, const std::string& apellido, int dorsal)
     : nombre(nombre), apellido(apellido), dorsal(dorsal),
-    golesHistoricos(0), asistenciasHistoricas(0),
-    amarillasHistoricas(0), rojasHistoricas(0),
-    faltasHistoricas(0), minutosHistoricos(0),
-    partidosJugadosHistoricos(0),
-    golesTemp(0), asistenciasTemp(0),
-    amarillasTemp(0), rojasTemp(0),
-    faltasTemp(0), minutosTemp(0)
-{}
+      golesHistoricos(0), asistenciasHistoricas(0),
+      amarillasHistoricas(0), rojasHistoricas(0),
+      faltasHistoricas(0), minutosHistoricos(0),
+      partidosJugadosHistoricos(0),
+      golesTemp(0), asistenciasTemp(0),
+      amarillasTemp(0), rojasTemp(0),
+      faltasTemp(0), minutosTemp(0)
+{
+    Medidor::add(sizeof(Jugador));
+}
 
-// ─────────────────────────────────────────────
+
 // Constructor de copia
-// ─────────────────────────────────────────────
+
 Jugador::Jugador(const Jugador& otro)
     : nombre(otro.nombre), apellido(otro.apellido), dorsal(otro.dorsal),
-    golesHistoricos(otro.golesHistoricos),
-    asistenciasHistoricas(otro.asistenciasHistoricas),
-    amarillasHistoricas(otro.amarillasHistoricas),
-    rojasHistoricas(otro.rojasHistoricas),
-    faltasHistoricas(otro.faltasHistoricas),
-    minutosHistoricos(otro.minutosHistoricos),
-    partidosJugadosHistoricos(otro.partidosJugadosHistoricos),
-    golesTemp(otro.golesTemp), asistenciasTemp(otro.asistenciasTemp),
-    amarillasTemp(otro.amarillasTemp), rojasTemp(otro.rojasTemp),
-    faltasTemp(otro.faltasTemp), minutosTemp(otro.minutosTemp)
-{}
+      golesHistoricos(otro.golesHistoricos),
+      asistenciasHistoricas(otro.asistenciasHistoricas),
+      amarillasHistoricas(otro.amarillasHistoricas),
+      rojasHistoricas(otro.rojasHistoricas),
+      faltasHistoricas(otro.faltasHistoricas),
+      minutosHistoricos(otro.minutosHistoricos),
+      partidosJugadosHistoricos(otro.partidosJugadosHistoricos),
+      golesTemp(otro.golesTemp), asistenciasTemp(otro.asistenciasTemp),
+      amarillasTemp(otro.amarillasTemp), rojasTemp(otro.rojasTemp),
+      faltasTemp(otro.faltasTemp), minutosTemp(otro.minutosTemp)
+{
+    Medidor::add(sizeof(Jugador));
+}
 
-// ─────────────────────────────────────────────
-// Destructor (no hay memoria dinámica propia en Jugador)
-// ─────────────────────────────────────────────
-Jugador::~Jugador() {}
 
-// ─────────────────────────────────────────────
+// Destructor
+
+Jugador::~Jugador() {
+    Medidor::sub(sizeof(Jugador));
+}
+
+
 // Getters
-// ─────────────────────────────────────────────
+
 std::string Jugador::getNombre() const { return nombre; }
 std::string Jugador::getApellido() const { return apellido; }
 std::string Jugador::getNombreCompleto() const { return nombre + " " + apellido; }
@@ -57,46 +64,44 @@ int Jugador::getGolesTemp() const { return golesTemp; }
 int Jugador::getAmarillasTemp() const { return amarillasTemp; }
 int Jugador::getFaltasTemp() const { return faltasTemp; }
 
-// ─────────────────────────────────────────────
+
 // Setters
-// ─────────────────────────────────────────────
+
 void Jugador::setGolesHistoricos(int g) { golesHistoricos = g; }
 void Jugador::setPartidosJugadosHistoricos(int p) { partidosJugadosHistoricos = p; }
 
-// ─────────────────────────────────────────────
+
 // registrarAccion
-// Discrimina por string para mapear eventos del partido a estadísticas.
-// Decisión: se prefiere string sobre enum para mantener extensibilidad
-// sin modificar la firma del método (según UML).
-// ─────────────────────────────────────────────
+
 void Jugador::registrarAccion(const std::string& accion) {
+    Medidor::it();
+
     if (accion == "gol") {
         golesTemp++;
     } else if (accion == "asistencia") {
         asistenciasTemp++;
     } else if (accion == "amarilla") {
-        registrarAmarilla(); // delega para manejar la lógica de roja
+        registrarAmarilla();
     } else if (accion == "falta") {
         faltasTemp++;
     }
-    // "minutos:<N>" se maneja en consolidarPartido con parámetro explícito
 }
 
-// ─────────────────────────────────────────────
+
 // registrarAmarilla
-// La segunda amarilla en el mismo partido produce tarjeta roja.
-// ─────────────────────────────────────────────
+
 void Jugador::registrarAmarilla() {
+    Medidor::it();
+
     amarillasTemp++;
     if (amarillasTemp == 2) {
         rojasTemp++; // roja por doble amarilla
     }
 }
 
-// ─────────────────────────────────────────────
+
 // getFichaTecnica
-// Retorna un resumen legible del jugador con datos históricos.
-// ─────────────────────────────────────────────
+
 std::string Jugador::getFichaTecnica() const {
     std::ostringstream oss;
     oss << "─────────────────────────────\n";
@@ -112,12 +117,12 @@ std::string Jugador::getFichaTecnica() const {
     return oss.str();
 }
 
-// ─────────────────────────────────────────────
+
 // resetTemp
-// Limpia SOLO las estadísticas del partido actual.
-// Se llama al inicio de cada partido para preparar al jugador.
-// ─────────────────────────────────────────────
+
 void Jugador::resetTemp() {
+    Medidor::it();
+
     golesTemp       = 0;
     asistenciasTemp = 0;
     amarillasTemp   = 0;
@@ -126,12 +131,12 @@ void Jugador::resetTemp() {
     minutosTemp     = 0;
 }
 
-// ─────────────────────────────────────────────
+
 // consolidarPartido
-// Cierra un partido: suma temporales al histórico y resetea.
-// Parámetro minutos: 90 (normal) o 120 (prórroga).
-// ─────────────────────────────────────────────
+
 void Jugador::consolidarPartido(int minutos) {
+    Medidor::it();
+
     golesHistoricos          += golesTemp;
     asistenciasHistoricas    += asistenciasTemp;
     amarillasHistoricas      += amarillasTemp;
@@ -139,5 +144,7 @@ void Jugador::consolidarPartido(int minutos) {
     faltasHistoricas         += faltasTemp;
     minutosHistoricos        += minutos;
     partidosJugadosHistoricos++;
+
     resetTemp();
 }
+
