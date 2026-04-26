@@ -2,6 +2,7 @@
 #define JUGADOR_H
 
 #include <string>
+#include <iostream>
 
 class Jugador {
 private:
@@ -18,7 +19,7 @@ private:
     int minutosHistoricos;
     int partidosJugadosHistoricos;
 
-    // Estadísticas temporales (partido actual)
+    // Estadísticas temporales
     int golesTemp;
     int asistenciasTemp;
     int amarillasTemp;
@@ -56,16 +57,23 @@ public:
     void setGolesHistoricos(int g);
     void setPartidosJugadosHistoricos(int p);
 
-    // Lógica del juego
+    // Lógica
     void registrarAccion(const std::string& accion);
     void registrarAmarilla();
+
+    // Partido
+    void resetTemp();
+    void consolidarPartido(int minutos);
 
     // Utilidad
     std::string getFichaTecnica() const;
 
-    // Control de partido
-    void resetTemp();
-    void consolidarPartido(int minutos);
+    // Sobrecarga
+    bool operator>(const Jugador& otro) const;
+    bool operator<(const Jugador& otro) const;
+
+    // Función amiga
+    friend std::ostream& operator<<(std::ostream& os, const Jugador& jugador);
 };
 
 #endif
