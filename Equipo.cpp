@@ -4,12 +4,12 @@
 // Constructor
 Equipo::Equipo(std::string nombre, int ranking)
     : pais(nombre), confederacion(""),
-      directorTecnico(""),
-      rankingFIFA(ranking),
-      golesFavor(0), golesContra(0),
-      puntos(0), victorias(0),
-      empates(0), derrotas(0),
-      amarillas(0), rojas(0), faltas(0)
+    directorTecnico(""),
+    rankingFIFA(ranking),
+    golesFavor(0), golesContra(0),
+    puntos(0), victorias(0),
+    empates(0), derrotas(0),
+    amarillas(0), rojas(0), faltas(0)
 {
     Medidor::add(sizeof(Equipo));
 }
@@ -17,18 +17,18 @@ Equipo::Equipo(std::string nombre, int ranking)
 // Constructor copia
 Equipo::Equipo(const Equipo& otro)
     : pais(otro.pais),
-      confederacion(otro.confederacion),
-      directorTecnico(otro.directorTecnico),
-      rankingFIFA(otro.rankingFIFA),
-      golesFavor(otro.golesFavor),
-      golesContra(otro.golesContra),
-      puntos(otro.puntos),
-      victorias(otro.victorias),
-      empates(otro.empates),
-      derrotas(otro.derrotas),
-      amarillas(otro.amarillas),
-      rojas(otro.rojas),
-      faltas(otro.faltas)
+    confederacion(otro.confederacion),
+    directorTecnico(otro.directorTecnico),
+    rankingFIFA(otro.rankingFIFA),
+    golesFavor(otro.golesFavor),
+    golesContra(otro.golesContra),
+    puntos(otro.puntos),
+    victorias(otro.victorias),
+    empates(otro.empates),
+    derrotas(otro.derrotas),
+    amarillas(otro.amarillas),
+    rojas(otro.rojas),
+    faltas(otro.faltas)
 {
     for (int i = 0; i < otro.plantilla.getTamanio(); i++) {
         Jugador* copia = new Jugador(*otro.plantilla.obtener(i));
