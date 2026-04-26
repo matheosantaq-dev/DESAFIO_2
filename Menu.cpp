@@ -5,9 +5,10 @@
 
 // Constructor
 Menu::Menu()
-    : gestor("selecciones_clasificadas_mundial.csv")
+    : gestor("C:/Users/PC/Documents/untitled13/build/Desktop_Qt_6_10_2_MinGW_64_bit-Debug/selecciones_clasificadas_mundial.csv")
 {
 }
+
 
 // Destructor
 Menu::~Menu() {
