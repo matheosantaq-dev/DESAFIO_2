@@ -1,4 +1,4 @@
-#include "Grupo.h"
+#i#include "Grupo.h"
 #include "Medidor.h"
 #include <iostream>
 
@@ -83,7 +83,7 @@ void Grupo::organizarEncuentros(const std::string& fechaInicio) {
                 e2,
                 fechaInicio,
                 "nombreSede"
-            );
+                );
 
             partidos.insertarAlFinal(nuevo);
             numPartidos++;
