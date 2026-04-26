@@ -8,25 +8,31 @@ private:
     Nodo<T>* siguiente;
 
 public:
-    Nodo(const T& valor) {
-        dato = valor;
-        siguiente = nullptr;
-    }
+    // Constructor
+    Nodo(const T& valor) : dato(valor), siguiente(nullptr) {}
 
-    void setDato(const T& valor) {
-        dato = valor;
-    }
+    // Constructor copia
+    Nodo(const Nodo<T>& otro) : dato(otro.dato), siguiente(nullptr) {}
 
+    // Destructor
+    ~Nodo() {}
+
+    // Getters
     T getDato() const {
         return dato;
     }
 
-    void setSiguiente(Nodo<T>* sig) {
-        siguiente = sig;
-    }
-
     Nodo<T>* getSiguiente() const {
         return siguiente;
+    }
+
+    // Setters
+    void setDato(const T& valor) {
+        dato = valor;
+    }
+
+    void setSiguiente(Nodo<T>* sig) {
+        siguiente = sig;
     }
 };
 
