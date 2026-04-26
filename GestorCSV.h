@@ -12,15 +12,13 @@ private:
     std::ifstream archivo;
 
 public:
-   
-   // Constructor
+    // Constructor
     GestorCSV(std::string ruta = "C:/Users/PC/Documents/untitled13/build/Desktop_Qt_6_10_2_MinGW_64_bit-Debug/selecciones_clasificadas_mundial.csv");
-
 
     // Destructor
     ~GestorCSV();
 
-    // Cargar equipos desde CSV
+    // Cargar equipos
     ListaDinamica<Equipo*> cargarEquipos();
 };
 
