@@ -1,59 +1,46 @@
-#ifndef PARTIDO_H
-#define PARTIDO_H
+#ifndef TORNEO_H
+#define TORNEO_H
 
+#include "ListaDinamica.h"
+#include "Grupo.h"
 #include "Equipo.h"
+#include "Partido.h"
 #include <string>
 
-class Partido {
+class Torneo {
 private:
-    Equipo* local;
-    Equipo* visitante;
+    ListaDinamica<Grupo*> grupos;
 
-    int golesLocal;
-    int golesVisitante;
+    Equipo* bombos[4][12];
 
-    double posesionLocal;
-    double posesionVisitante;
+    ListaDinamica<Equipo*> clasificados;
 
-    bool huboProrroga;
+    int totalGoles;
+    Equipo* campeon;
+    Equipo* subcampeon;
+    Equipo* tercerLugar;
 
-    std::string fecha;
-    std::string sede;
-
-    std::string arbitro1;
-    std::string arbitro2;
-    std::string arbitro3;
-
-    // Métodos internos (privados)
-    double calcularLambda(Equipo* ataque, Equipo* defensa);
-    void seleccionarTitulares(int titulares[], Equipo* equipo);
-    void simularEventosJugadores(int titulares[], Equipo* equipo, int goles);
-    void resolverEmpate();
-
-public:
-    
-    Partido(
-        Equipo* l,
-        Equipo* v,
-        const std::string& fecha = "20/06/2026",
-        const std::string& sede = "Estadio Sede"
+    void avanzarRonda(
+        ListaDinamica<Equipo*>& participantes,
+        ListaDinamica<Equipo*>& ganadores,
+        const std::string& fase
         );
 
-    // Destructor
-    ~Partido();
+public:
+    Torneo();
+    ~Torneo();
 
-    // Simulación
-    void simular(bool eliminacionDirecta = false);
+    void organizarBombos(ListaDinamica<Equipo*>& listaEquipos);
+    void crearGrupos();
 
-    // Mostrar
-    void printResumen() const;
+    void simularFaseGrupos();
+    void clasificarEquipos();
+    void simularEliminatorias();
 
-    // Getters 
-    Equipo* getLocal() const;
-    Equipo* getVisitante() const;
-    int getGolesLocal() const;
-    int getGolesVisitante() const;
-    bool getHuboProrroga() const;
+    void generarEstadisticas();
+    void mostrarPodio();
+
+    ListaDinamica<Grupo*>& getGrupos();
 };
 
 #endif
