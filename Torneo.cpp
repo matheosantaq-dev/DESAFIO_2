@@ -6,9 +6,9 @@
 // Constructor
 Torneo::Torneo()
     : totalGoles(0),
-      campeon(nullptr),
-      subcampeon(nullptr),
-      tercerLugar(nullptr)
+    campeon(nullptr),
+    subcampeon(nullptr),
+    tercerLugar(nullptr)
 {
     for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 12; j++) {
@@ -117,7 +117,7 @@ void Torneo::avanzarRonda(
     ListaDinamica<Equipo*>& participantes,
     ListaDinamica<Equipo*>& ganadores,
     const std::string& fase
-) {
+    ) {
     std::cout << "\n=== " << fase << " ===\n";
 
     for (int i = 0; i < participantes.getTamanio(); i += 2) {
@@ -161,7 +161,7 @@ void Torneo::simularEliminatorias() {
     Partido tercerPuesto(
         semifinalistas.obtener(0),
         semifinalistas.obtener(1)
-    );
+        );
 
     tercerPuesto.simular(true);
 
@@ -230,3 +230,4 @@ void Torneo::mostrarPodio() {
 ListaDinamica<Grupo*>& Torneo::getGrupos() {
     return grupos;
 }
+
