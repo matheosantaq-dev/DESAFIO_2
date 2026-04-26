@@ -1,14 +1,22 @@
-#include <iostream>
-#include <ctime>
-#include <cstdlib>
-
 #include "Menu.h"
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
 
 int main() {
-    srand(static_cast<unsigned>(time(nullptr)));
+    std::cout << "=== INICIANDO PROGRAMA ===\n";
 
-    Menu menu;
-    menu.iniciar();
+    
+    srand(time(0));
 
+    try {
+        Menu menu;
+        menu.iniciar();
+    }
+    catch (...) {
+        std::cerr << "ERROR: El programa crasheó.\n";
+    }
+
+    std::cout << "=== FIN DEL PROGRAMA ===\n";
     return 0;
 }
