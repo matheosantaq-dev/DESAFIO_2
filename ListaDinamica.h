@@ -2,6 +2,7 @@
 #define LISTADINAMICA_H
 
 #include "Nodo.h"
+#include <iostream>
 
 template <typename T>
 class ListaDinamica {
@@ -10,96 +11,122 @@ private:
     int tamano;
 
 public:
+    // Constructor
     ListaDinamica() : cabeza(nullptr), tamano(0) {}
 
-    // Destructor: elimina nodos 
-    ~ListaDinamica() {
-        Nodo<T>* actual = cabeza;
+    // Constructor copia
+    ListaDinamica(const ListaDinamica<T>& otra) {
+        cabeza = nullptr;
+        tamano = 0;
+
+        Nodo<T>* actual = otra.cabeza;
         while (actual != nullptr) {
-            Nodo<T>* siguiente = actual->siguiente;
-            delete actual;
-            actual = siguiente;
+            insertarAlFinal(actual->getDato());
+            actual = actual->getSiguiente();
         }
     }
 
+    // Destructor
+    ~ListaDinamica() {
+        limpiar();
+    }
+
     // Insertar al final
-    void insertarAlFinal(T valor) {
+    void insertarAlFinal(const T& valor) {
         Nodo<T>* nuevoNodo = new Nodo<T>(valor);
 
         if (cabeza == nullptr) {
             cabeza = nuevoNodo;
         } else {
             Nodo<T>* temp = cabeza;
-            while (temp->siguiente != nullptr) {
-                temp = temp->siguiente;
+            while (temp->getSiguiente() != nullptr) {
+                temp = temp->getSiguiente();
             }
-            temp->siguiente = nuevoNodo;
+            temp->setSiguiente(nuevoNodo);
         }
 
         tamano++;
     }
 
-    // Tamaño
+    // Obtener tamaño
     int getTamanio() const {
         return tamano;
     }
 
-    // Acceso por índice
+    // Verificar si está vacía
+    bool estaVacia() const {
+        return cabeza == nullptr;
+    }
+
+    // Obtener por índice
     T obtener(int indice) const {
-        if (indice < 0 || indice >= tamano) return nullptr;
+        if (indice < 0 || indice >= tamano) {
+            return T();
+        }
 
         Nodo<T>* temp = cabeza;
         for (int i = 0; i < indice; i++) {
-            temp = temp->siguiente;
+            temp = temp->getSiguiente();
         }
-        return temp->dato;
+
+        return temp->getDato();
     }
 
     // Intercambiar elementos
     void intercambiar(int i, int j) {
-        if (i < 0 || j < 0 || i >= tamano || j >= tamano) return;
+        if (i < 0 || j < 0 || i >= tamano || j >= tamano || i == j) {
+            return;
+        }
 
-        Nodo<T>* a = cabeza;
-        Nodo<T>* b = cabeza;
+        Nodo<T>* nodoI = cabeza;
+        Nodo<T>* nodoJ = cabeza;
 
-        for (int k = 0; k < i; k++) a = a->siguiente;
-        for (int k = 0; k < j; k++) b = b->siguiente;
+        for (int k = 0; k < i; k++) {
+            nodoI = nodoI->getSiguiente();
+        }
 
-        T temp = a->dato;
-        a->dato = b->dato;
-        b->dato = temp;
+        for (int k = 0; k < j; k++) {
+            nodoJ = nodoJ->getSiguiente();
+        }
+
+        T temp = nodoI->getDato();
+        nodoI->setDato(nodoJ->getDato());
+        nodoJ->setDato(temp);
     }
 
-    // Limpiar lista 
+    // Limpiar lista
     void limpiar() {
         Nodo<T>* actual = cabeza;
+
         while (actual != nullptr) {
-            Nodo<T>* siguiente = actual->siguiente;
+            Nodo<T>* siguiente = actual->getSiguiente();
             delete actual;
             actual = siguiente;
         }
+
         cabeza = nullptr;
         tamano = 0;
     }
 
-    // Ordenar por ranking 
+    // Ordenar por ranking FIFA 
     void ordenarPorRanking() {
-        for (int i = 0; i < tamano; i++) {
+        if (tamano < 2) return;
+
+        for (int i = 0; i < tamano - 1; i++) {
             for (int j = i + 1; j < tamano; j++) {
+                T datoI = obtener(i);
+                T datoJ = obtener(j);
 
-                Nodo<T>* a = cabeza;
-                Nodo<T>* b = cabeza;
-
-                for (int k = 0; k < i; k++) a = a->siguiente;
-                for (int k = 0; k < j; k++) b = b->siguiente;
-
-                if (a->dato->getRanking() > b->dato->getRanking()) {
-                    T temp = a->dato;
-                    a->dato = b->dato;
-                    b->dato = temp;
+                if (datoI->getRanking() > datoJ->getRanking()) {
+                    intercambiar(i, j);
                 }
             }
         }
+    }
+
+    // Sobrecarga operador []
+    T operator[](int indice) const {
+        return obtener(indice);
     }
 };
 
