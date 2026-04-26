@@ -7,11 +7,11 @@
 
 class Equipo {
 private:
-    // Atributos de identificación
+    // Identificación
     std::string pais;
     int rankingFIFA;
 
-    // Estadisticas requeridas por el UML
+    // Estadísticas
     int golesFavor;
     int golesContra;
     int puntos;
@@ -19,15 +19,15 @@ private:
     int empates;
     int derrotas;
 
-    // Estructura de datos
+    // Jugadores
     ListaDinamica<Jugador*> plantilla;
 
 public:
-    // Constructor
+    // Constructor y destructor
     Equipo(std::string nombre, int ranking);
+    ~Equipo();
 
-    // Métodos de acceso (Getters y Setters)
-    // Estos van en la sección public para que otras clases puedan consultarlos
+    // Setters
     void setGolesFavor(int g);
     void setGolesContra(int g);
     void setPuntos(int p);
@@ -45,14 +45,15 @@ public:
     int getEmpates() const;
     int getDerrotas() const;
 
-    /*se agregan estos setters y getters por que se necesita modificar y consultar estadisticas*/
+    // Jugadores
     Jugador* getJugador(int i);
     int getCantidadJugadores() const;
-    Jugador* getJugador(int index) const;
-    // Metodo para agregar jugadores
     void agregarJugador(Jugador* j);
-};
 
-#endif
+    // Lógica para simulación
+    double promGF() const;
+    double promGC() const;
+    void resetStats();
+};
 
 #endif
