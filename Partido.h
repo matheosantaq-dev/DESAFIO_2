@@ -1,46 +1,56 @@
-#ifndef TORNEO_H
-#define TORNEO_H
+#ifndef PARTIDO_H
+#define PARTIDO_H
 
-#include "ListaDinamica.h"
-#include "Grupo.h"
-#include "Equipo.h"
-#include "Partido.h"
 #include <string>
+#include "Equipo.h"
 
-class Torneo {
+class Partido {
 private:
-    ListaDinamica<Grupo*> grupos;
+    Equipo* local;
+    Equipo* visitante;
 
-    Equipo* bombos[4][12];
+    int golesLocal;
+    int golesVisitante;
 
-    ListaDinamica<Equipo*> clasificados;
+    double posesionLocal;
+    double posesionVisitante;
 
-    int totalGoles;
-    Equipo* campeon;
-    Equipo* subcampeon;
-    Equipo* tercerLugar;
+    bool huboProrroga;
 
-    void avanzarRonda(
-        ListaDinamica<Equipo*>& participantes,
-        ListaDinamica<Equipo*>& ganadores,
-        const std::string& fase
-        );
+    std::string fecha;
+    std::string sede;
+
+    // Estadísticas tipo FIFA
+    int tirosLocal;
+    int tirosVisitante;
+    int tirosArcoLocal;
+    int tirosArcoVisitante;
+    int faltasLocal;
+    int faltasVisitante;
+    int amarillasLocal;
+    int amarillasVisitante;
 
 public:
-    Torneo();
-    ~Torneo();
+    Partido(Equipo* l, Equipo* v, const std::string& fecha, const std::string& sede);
+    ~Partido();
 
-    void organizarBombos(ListaDinamica<Equipo*>& listaEquipos);
-    void crearGrupos();
+    // Simulación
+    void simular(bool eliminacionDirecta);
+    void printResumen() const;
 
-    void simularFaseGrupos();
-    void clasificarEquipos();
-    void simularEliminatorias();
+    // Cálculos
+    double calcularLambda(Equipo* ataque, Equipo* defensa);
+    void seleccionarTitulares(int titulares[], Equipo* equipo);
+    void simularEventosJugadores(int titulares[], Equipo* equipo, int goles);
+    void generarEstadisticasRealistas();
+    void resolverEmpate();
 
-    void generarEstadisticas();
-    void mostrarPodio();
-
-    ListaDinamica<Grupo*>& getGrupos();
+    // Getters
+    Equipo* getLocal() const;
+    Equipo* getVisitante() const;
+    int getGolesLocal() const;
+    int getGolesVisitante() const;
+    bool getHuboProrroga() const;
 };
 
 #endif
