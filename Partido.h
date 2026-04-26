@@ -7,25 +7,31 @@ class Partido {
 private:
     Equipo* local;
     Equipo* visitante;
+
     int golesLocal;
     int golesVisitante;
-    double calcularLambda(Equipo* ataque, Equipo* defensa);
+
     double posesionLocal;
     double posesionVisitante;
+
+    // Modelo de generación de goles
+    double calcularLambda(Equipo* ataque, Equipo* defensa);
 
 public:
     // Constructor
     Partido(Equipo* l, Equipo* v);
 
-    // Método principal para la lógica de simulación
+    // Simulación completa del partido
     void simular();
-    // Se agrega printResumen para poder mostrar los resultados del partido
+
+    // Mostrar resultado
     void printResumen() const;
-    // Getters para acceder a la información del partido si se requiere
-    Equipo* getLocal() const { return local; }
-    Equipo* getVisitante() const { return visitante; }
-    int getGolesLocal() const { return golesLocal; }
-    int getGolesVisitante() const { return golesVisitante; }
+
+    // Getters
+    Equipo* getLocal() const;
+    Equipo* getVisitante() const;
+    int getGolesLocal() const;
+    int getGolesVisitante() const;
 };
 
 #endif
