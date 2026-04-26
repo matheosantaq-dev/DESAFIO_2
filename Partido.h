@@ -24,22 +24,20 @@ private:
     std::string arbitro2;
     std::string arbitro3;
 
-    // Modelo
+    // Métodos internos (privados)
     double calcularLambda(Equipo* ataque, Equipo* defensa);
-
-    // Auxiliares
     void seleccionarTitulares(int titulares[], Equipo* equipo);
     void simularEventosJugadores(int titulares[], Equipo* equipo, int goles);
     void resolverEmpate();
 
 public:
-    // Constructor
+    
     Partido(
         Equipo* l,
         Equipo* v,
         const std::string& fecha = "20/06/2026",
-        const std::string& sede = "nombreSede"
-    );
+        const std::string& sede = "Estadio Sede"
+        );
 
     // Destructor
     ~Partido();
@@ -50,7 +48,7 @@ public:
     // Mostrar
     void printResumen() const;
 
-    // Getters
+    // Getters 
     Equipo* getLocal() const;
     Equipo* getVisitante() const;
     int getGolesLocal() const;
