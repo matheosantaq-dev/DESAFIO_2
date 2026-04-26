@@ -3,34 +3,37 @@
 
 #include <sstream>
 #include <iostream>
-#include <cctype>
 
 // Constructor
 GestorCSV::GestorCSV(std::string ruta)
-    : path(ruta) {
-}
+    : path(ruta) {}
 
 // Destructor
 GestorCSV::~GestorCSV() {
     if (archivo.is_open()) archivo.close();
 }
 
-
 ListaDinamica<Equipo*> GestorCSV::cargarEquipos() {
 
     ListaDinamica<Equipo*> equipos;
 
     std::cout << "Intentando abrir: " << path << std::endl;
+    std::cerr << "Por favor ingrese la ruta COMPLETA del archivo CSV:\n";
 
-    archivo.open(path);
+    std::string rutaManual;
+    std::cout << "C:/des2/untitled13/build/Desktop_Qt_6_10_2_MinGW_64_bit-Debug/selecciones_clasificadas_mundial.csv:";
+    std::getline(std::cin >> std::ws, rutaManual);
+
+    archivo.open(rutaManual);
 
     if (!archivo.is_open()) {
-        std::cerr << " ERROR: no se pudo abrir el CSV\n";
+        std::cerr << "ERROR: no se pudo abrir el CSV\n";
         return equipos;
     }
 
     std::string linea;
 
+    // Saltar título y encabezados
     std::getline(archivo, linea);
     std::getline(archivo, linea);
 
@@ -54,17 +57,17 @@ ListaDinamica<Equipo*> GestorCSV::cargarEquipos() {
         std::getline(ss, pe, ';');
         std::getline(ss, pp, ';');
 
-        if (ranking.empty() || pais.empty() || conf.empty())
-            continue;
+        // Limpiar strings (CLAVE)
+        auto limpiar = [](std::string& s) {
+            s.erase(0, s.find_first_not_of(" \t\r\n"));
+            s.erase(s.find_last_not_of(" \t\r\n") + 1);
+        };
 
-        bool valido = true;
-        for (char c : ranking) {
-            if (!isdigit(c)) {
-                valido = false;
-                break;
-            }
-        }
-        if (!valido) continue;
+        limpiar(ranking);
+        limpiar(pais);
+        limpiar(conf);
+
+        if (ranking.empty() || pais.empty()) continue;
 
         try {
             int rank = std::stoi(ranking);
@@ -82,6 +85,7 @@ ListaDinamica<Equipo*> GestorCSV::cargarEquipos() {
 
             e->setPuntos(e->getVictorias() * 3 + e->getEmpates());
 
+            // Crear jugadores
             for (int i = 1; i <= 26; i++) {
                 Jugador* j = new Jugador(
                     "Jugador" + std::to_string(i),
@@ -94,7 +98,7 @@ ListaDinamica<Equipo*> GestorCSV::cargarEquipos() {
             equipos.insertarAlFinal(e);
 
         } catch (...) {
-            std::cerr << "Error en línea\n";
+            std::cerr << "Error procesando línea\n";
         }
     }
 
