@@ -1,48 +1,52 @@
 #include "GestorCSV.h"
 #include "Medidor.h"
+
 #include <sstream>
 #include <iostream>
+#include <cctype>
 
 // Constructor
-GestorCSV::GestorCSV(std::string ruta) : path(ruta) {}
+GestorCSV::GestorCSV(std::string ruta)
+    : path(ruta) {
+}
 
 // Destructor
 GestorCSV::~GestorCSV() {
-    if (archivo.is_open()) {
-        archivo.close();
-    }
+    if (archivo.is_open()) archivo.close();
 }
 
-// Cargar equipos
-ListaDinamica<Equipo*> GestorCSV::cargarEquipos() {
-    ListaDinamica<Equipo*> equiposCargados;
 
-    archivo.open(path.c_str());
+ListaDinamica<Equipo*> GestorCSV::cargarEquipos() {
+
+    ListaDinamica<Equipo*> equipos;
+
+    std::cout << "Intentando abrir: " << path << std::endl;
+
+    archivo.open(path);
 
     if (!archivo.is_open()) {
-        std::cerr << "Error: No se pudo abrir el archivo " << path << std::endl;
-        return equiposCargados;
+        std::cerr << " ERROR: no se pudo abrir el CSV\n";
+        return equipos;
     }
 
     std::string linea;
 
-    // Saltar encabezados
+    std::getline(archivo, linea);
     std::getline(archivo, linea);
 
     while (std::getline(archivo, linea)) {
-        Medidor::it();
 
         if (linea.empty()) continue;
 
         std::stringstream ss(linea);
 
-        std::string ranking, pais, tecnico, federacion, conf;
-        std::string gf, gc, pg, pe, pp;
+        std::string ranking, pais, tecnico, fed;
+        std::string conf, gf, gc, pg, pe, pp;
 
         std::getline(ss, ranking, ';');
         std::getline(ss, pais, ';');
         std::getline(ss, tecnico, ';');
-        std::getline(ss, federacion, ';');
+        std::getline(ss, fed, ';');
         std::getline(ss, conf, ';');
         std::getline(ss, gf, ';');
         std::getline(ss, gc, ';');
@@ -50,66 +54,50 @@ ListaDinamica<Equipo*> GestorCSV::cargarEquipos() {
         std::getline(ss, pe, ';');
         std::getline(ss, pp, ';');
 
-        if (pais.empty() || ranking.empty()) {
+        if (ranking.empty() || pais.empty() || conf.empty())
             continue;
+
+        bool valido = true;
+        for (char c : ranking) {
+            if (!isdigit(c)) {
+                valido = false;
+                break;
+            }
         }
+        if (!valido) continue;
 
         try {
-            int rankingInt = std::stoi(ranking);
+            int rank = std::stoi(ranking);
 
-            Equipo* nuevo = new Equipo(pais, rankingInt);
+            Equipo* e = new Equipo(pais, rank);
 
-            // Datos extra
-            nuevo->setDirectorTecnico(tecnico);
-            nuevo->setConfederacion(conf);
+            e->setConfederacion(conf);
+            e->setDirectorTecnico(tecnico);
 
-            // Estadísticas históricas
-            int golesFavor = gf.empty() ? 0 : std::stoi(gf);
-            int golesContra = gc.empty() ? 0 : std::stoi(gc);
-            int victorias = pg.empty() ? 0 : std::stoi(pg);
-            int empates = pe.empty() ? 0 : std::stoi(pe);
-            int derrotas = pp.empty() ? 0 : std::stoi(pp);
+            if (!gf.empty()) e->setGolesFavor(std::stoi(gf));
+            if (!gc.empty()) e->setGolesContra(std::stoi(gc));
+            if (!pg.empty()) e->setVictorias(std::stoi(pg));
+            if (!pe.empty()) e->setEmpates(std::stoi(pe));
+            if (!pp.empty()) e->setDerrotas(std::stoi(pp));
 
-            nuevo->setGolesFavor(golesFavor);
-            nuevo->setGolesContra(golesContra);
-            nuevo->setVictorias(victorias);
-            nuevo->setEmpates(empates);
-            nuevo->setDerrotas(derrotas);
-
-            // Distribución uniforme de goles entre 26 jugadores
-            int golesBase = golesFavor / 26;
-            int sobrantes = golesFavor % 26;
+            e->setPuntos(e->getVictorias() * 3 + e->getEmpates());
 
             for (int i = 1; i <= 26; i++) {
-                Medidor::it();
-
-                Jugador* jugador = new Jugador(
-                    "nombre" + std::to_string(i),
-                    "apellido" + std::to_string(i),
+                Jugador* j = new Jugador(
+                    "Jugador" + std::to_string(i),
+                    "Apellido" + std::to_string(i),
                     i
-                );
-
-                jugador->setPartidosJugadosHistoricos(0);
-
-                int golesJugador = golesBase;
-                if (sobrantes > 0) {
-                    golesJugador++;
-                    sobrantes--;
-                }
-
-                jugador->setGolesHistoricos(golesJugador);
-
-                nuevo->agregarJugador(jugador);
+                    );
+                e->agregarJugador(j);
             }
 
-            equiposCargados.insertarAlFinal(nuevo);
-        }
-        catch (...) {
-            std::cerr << "Error procesando línea: " << linea << std::endl;
+            equipos.insertarAlFinal(e);
+
+        } catch (...) {
+            std::cerr << "Error en línea\n";
         }
     }
 
     archivo.close();
-
-    return equiposCargados;
+    return equipos;
 }
