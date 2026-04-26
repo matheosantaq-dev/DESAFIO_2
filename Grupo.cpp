@@ -1,6 +1,7 @@
-#i#include "Grupo.h"
+#include "Grupo.h"
 #include "Medidor.h"
 #include <iostream>
+#include <iomanip>
 
 // Constructor
 Grupo::Grupo(char id) : id(id), numPartidos(0) {}
@@ -8,111 +9,64 @@ Grupo::Grupo(char id) : id(id), numPartidos(0) {}
 // Destructor
 Grupo::~Grupo() {
     for (int i = 0; i < partidos.getTamanio(); i++) {
-        Medidor::it();
-
         Partido* p = partidos.obtener(i);
-        if (p) {
-            delete p;
-        }
+        if (p) delete p;
     }
 }
 
-// Agregar equipo con restricción de confederación
+// Agregar equipo
 bool Grupo::agregarEquipo(Equipo* equipo) {
-    if (!equipo || equipos.getTamanio() >= 4) {
-        return false;
-    }
+    if (!equipo || equipos.getTamanio() >= 4) return false;
 
-    int mismaConf = 0;
-
-    for (int i = 0; i < equipos.getTamanio(); i++) {
-        Medidor::it();
-
-        Equipo* actual = equipos.obtener(i);
-
-        if (actual &&
-            actual->getConfederacion() == equipo->getConfederacion()) {
-            mismaConf++;
-        }
-    }
-
-    // Restricción:
-    // UEFA máximo 2
-    // otras máximo 1
-    if (equipo->getConfederacion() == "UEFA") {
-        if (mismaConf >= 2) return false;
-    }
-    else {
-        if (mismaConf >= 1) return false;
-    }
 
     equipos.insertarAlFinal(equipo);
     return true;
 }
 
-// Organizar encuentros
+// Organizar partidos
 void Grupo::organizarEncuentros(const std::string& fechaInicio) {
-    if (equipos.getTamanio() < 4) {
-        return;
-    }
 
-    // Limpiar partidos previos
-    for (int i = 0; i < partidos.getTamanio(); i++) {
-        Partido* p = partidos.obtener(i);
-        if (p) delete p;
+    if (equipos.getTamanio() < 4) {
+        std::cout << "Grupo " << id << " incompleto\n";
+        return;
     }
 
     partidos.limpiar();
     numPartidos = 0;
 
-    int emparejamientos[6][2] = {
+    int emp[6][2] = {
         {0,1}, {2,3},
         {0,2}, {1,3},
         {0,3}, {1,2}
     };
 
     for (int i = 0; i < 6; i++) {
-        Medidor::it();
 
-        Equipo* e1 = equipos.obtener(emparejamientos[i][0]);
-        Equipo* e2 = equipos.obtener(emparejamientos[i][1]);
+        Equipo* a = equipos.obtener(emp[i][0]);
+        Equipo* b = equipos.obtener(emp[i][1]);
 
-        if (e1 && e2) {
-            Partido* nuevo = new Partido(
-                e1,
-                e2,
-                fechaInicio,
-                "nombreSede"
-                );
+        if (!a || !b) continue;
 
-            partidos.insertarAlFinal(nuevo);
-            numPartidos++;
-        }
+        Partido* p = new Partido(a, b, fechaInicio, "Estadio");
+        partidos.insertarAlFinal(p);
+        numPartidos++;
     }
 }
 
-// Simular fase grupal
+// Simular
 void Grupo::simularFaseGrupal() {
     for (int i = 0; i < partidos.getTamanio(); i++) {
-        Medidor::it();
-
         Partido* p = partidos.obtener(i);
-        if (p) {
-            p->simular();
-        }
+        if (p) p->simular(false);
     }
 }
 
-// Mostrar resultados
+// Resultados
 void Grupo::mostrarResultados() const {
     std::cout << "\nResultados Grupo " << id << ":\n";
-
     for (int i = 0; i < partidos.getTamanio(); i++) {
         Partido* p = partidos.obtener(i);
-
-        if (p) {
-            p->printResumen();
-        }
+        if (p) p->printResumen();
     }
 }
 
@@ -120,7 +74,6 @@ void Grupo::mostrarResultados() const {
 void Grupo::ordenarTabla() {
     for (int i = 0; i < equipos.getTamanio(); i++) {
         for (int j = i + 1; j < equipos.getTamanio(); j++) {
-            Medidor::it();
 
             Equipo* a = equipos.obtener(i);
             Equipo* b = equipos.obtener(j);
@@ -132,61 +85,51 @@ void Grupo::ordenarTabla() {
 
             bool cambiar = false;
 
-            if (b->getPuntos() > a->getPuntos()) {
-                cambiar = true;
-            }
-            else if (b->getPuntos() == a->getPuntos() && dgB > dgA) {
-                cambiar = true;
-            }
-            else if (b->getPuntos() == a->getPuntos() &&
-                     dgB == dgA &&
-                     b->getGolesFavor() > a->getGolesFavor()) {
-                cambiar = true;
-            }
+            if (b->getPuntos() > a->getPuntos()) cambiar = true;
+            else if (b->getPuntos() == a->getPuntos() && dgB > dgA) cambiar = true;
+            else if (b->getPuntos() == a->getPuntos() && dgB == dgA &&
+                     b->getGolesFavor() > a->getGolesFavor()) cambiar = true;
 
-            if (cambiar) {
-                equipos.intercambiar(i, j);
-            }
+            if (cambiar) equipos.intercambiar(i, j);
         }
     }
 }
 
-// Mostrar tabla
 void Grupo::mostrarTabla() {
     ordenarTabla();
 
     std::cout << "\n--- TABLA GRUPO " << id << " ---\n";
-    std::cout << "Equipo\tPTS\tDG\tGF\n";
+
+    std::cout << std::left << std::setw(28) << "Equipo"
+              << std::setw(6) << "PTS"
+              << std::setw(6) << "DG"
+              << std::setw(6) << "GF" << "\n";
 
     for (int i = 0; i < equipos.getTamanio(); i++) {
         Equipo* e = equipos.obtener(i);
-
         if (e) {
-            int dg = e->getGolesFavor() - e->getGolesContra();
-
-            std::cout << e->getPais() << "\t"
-                      << e->getPuntos() << "\t"
-                      << dg << "\t"
-                      << e->getGolesFavor() << "\n";
+            std::cout << std::left << std::setw(28) << e->getPais()
+            << std::setw(6) << e->getPuntos()
+            << std::setw(6) << (e->getGolesFavor() - e->getGolesContra())
+            << std::setw(6) << e->getGolesFavor()
+            << "\n";
         }
     }
 
-    std::cout << "-----------------------------\n";
+    std::cout << "-------------------------------------------\n";
 }
 
 // Getters
-char Grupo::getId() const {
-    return id;
-}
+char Grupo::getId() const { return id; }
+int Grupo::getNumEquipos() const { return equipos.getTamanio(); }
+int Grupo::getNumPartidos() const { return numPartidos; }
+Equipo* Grupo::getEquipo(int index) { return equipos.obtener(index); }
 
-int Grupo::getNumEquipos() const {
-    return equipos.getTamanio();
-}
-
-int Grupo::getNumPartidos() const {
-    return numPartidos;
-}
-
-Equipo* Grupo::getEquipo(int index) {
-    return equipos.obtener(index);
+// Clasificados
+Equipo** Grupo::getClasificados() {
+    ordenarTabla();
+    Equipo** top2 = new Equipo*[2];
+    top2[0] = equipos.obtener(0);
+    top2[1] = equipos.obtener(1);
+    return top2;
 }
