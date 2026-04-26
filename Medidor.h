@@ -2,15 +2,25 @@
 #define MEDIDOR_H
 
 #include <iostream>
-using namespace std;
+#include <iomanip>
 
-class Medidor{
+class Medidor {
 public:
-    static long long iter, mem;
+    // Variables globales
+    static long long iteraciones;
+    static long long memoria;
 
+    // Control de iteraciones
     static void it();
-    static void add(size_t b);
-    static void sub(size_t b);
+
+    // Control de memoria
+    static void add(size_t bytes);
+    static void sub(size_t bytes);
+
+    // Reiniciar métricas
+    static void reset();
+
+    // Mostrar resultados
     static void print();
 };
 
