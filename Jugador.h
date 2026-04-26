@@ -18,7 +18,7 @@ private:
     int minutosHistoricos;
     int partidosJugadosHistoricos;
 
-    // Estadísticas temporales (para el partido actual)
+    // Estadísticas temporales (partido actual)
     int golesTemp;
     int asistenciasTemp;
     int amarillasTemp;
@@ -27,16 +27,14 @@ private:
     int minutosTemp;
 
 public:
-    Jugador(const std::string& nombre, const std::string& apellido, int dorsal);
-    Jugador(const Jugador& otro); // Constructor de copia
+    // Constructores
+    Jugador(const std::string& nombre = "", const std::string& apellido = "", int dorsal = 0);
+    Jugador(const Jugador& otro);
 
-    // Métodos para el juego
-    void resetTemp();
-    void consolidarPartido(int minutos);
-    std::string toString() const; // Para mostrar datos
-
+    // Destructor
     ~Jugador();
 
+    // Getters
     std::string getNombre() const;
     std::string getApellido() const;
     std::string getNombreCompleto() const;
@@ -54,15 +52,20 @@ public:
     int getAmarillasTemp() const;
     int getFaltasTemp() const;
 
+    // Setters
     void setGolesHistoricos(int g);
     void setPartidosJugadosHistoricos(int p);
 
+    // Lógica del juego
     void registrarAccion(const std::string& accion);
     void registrarAmarilla();
 
+    // Utilidad
     std::string getFichaTecnica() const;
-};
 
-#endif
+    // Control de partido
+    void resetTemp();
+    void consolidarPartido(int minutos);
+};
 
 #endif
