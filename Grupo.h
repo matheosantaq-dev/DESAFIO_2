@@ -15,21 +15,24 @@ private:
     ListaDinamica<Partido*> partidos;
 
 public:
+    // Constructor y destructor
     Grupo(char id);
     ~Grupo();
 
+    // Gestión de equipos
     void agregarEquipo(Equipo* equipo);
+
+    // Organización y simulación
     void organizarEncuentros(const std::string& fechaInicio);
     void simularFaseGrupal();
-    void construirTablaClasificacion();
+
+    // Resultados
     void mostrarResultados() const;
     void mostrarTabla();
 
-
-    char getId() const { return id; }
-    int getNumEquipos() const { return equipos.getTamanio(); }
+    // Getters
+    char getId() const;
+    int getNumEquipos() const;
 };
 
 #endif
-#endif
-   
