@@ -3,8 +3,16 @@
 #include <cstdlib>
 #include <iostream>
 
+
+// Constructor
+
 Partido::Partido(Equipo* l, Equipo* v)
-    : local(l), visitante(v), golesLocal(0), golesVisitante(0) {}
+    : local(l), visitante(v),
+      golesLocal(0), golesVisitante(0),
+      posesionLocal(0.0), posesionVisitante(0.0) {}
+
+
+// Modelo de goles (lambda)
 
 double Partido::calcularLambda(Equipo* ataque, Equipo* defensa) {
     double GF = ataque->getGolesFavor() + 1;
@@ -17,10 +25,13 @@ double Partido::calcularLambda(Equipo* ataque, Equipo* defensa) {
     return mu * (alpha * GF + beta * GC) / 2.0;
 }
 
+
+// Simulación del partido
+
 void Partido::simular() {
 
     
-    // RESET DE TODOS LOS JUGADORES
+    // RESET jugadores
 
     for (int i = 0; i < local->getCantidadJugadores(); i++) {
         Medidor::it();
@@ -35,7 +46,7 @@ void Partido::simular() {
     }
 
    
-    // SELECCIÓN DE TITULARES
+    // Titulares
 
     int titularesLocal[11];
     int titularesVisitante[11];
@@ -46,20 +57,29 @@ void Partido::simular() {
         titularesVisitante[i] = rand() % visitante->getCantidadJugadores();
     }
 
-    
-    // GENERAR GOLES (MODELO)
-  
+   
+    // Generación de goles
+
     double lambdaLocal = calcularLambda(local, visitante);
     double lambdaVisitante = calcularLambda(visitante, local);
 
     golesLocal = static_cast<int>(lambdaLocal) + rand() % 2;
     golesVisitante = static_cast<int>(lambdaVisitante) + rand() % 2;
 
-    
-    // EVENTOS EN JUGADORES
    
+    // Posesión (basada en ranking)
 
-    // Goles local
+    int rankingA = local->getRanking();
+    int rankingB = visitante->getRanking();
+
+    if (rankingA + rankingB > 0) {
+        posesionLocal = (double)rankingB / (rankingA + rankingB);
+        posesionVisitante = 1.0 - posesionLocal;
+    }
+
+    
+    // Eventos: GOLES
+
     for (int g = 0; g < golesLocal; g++) {
         Medidor::it();
         int idx = titularesLocal[rand() % 11];
@@ -67,7 +87,6 @@ void Partido::simular() {
         if (j) j->registrarAccion("gol");
     }
 
-    // Goles visitante
     for (int g = 0; g < golesVisitante; g++) {
         Medidor::it();
         int idx = titularesVisitante[rand() % 11];
@@ -75,7 +94,9 @@ void Partido::simular() {
         if (j) j->registrarAccion("gol");
     }
 
-    // Faltas y tarjetas
+  
+    // Eventos: faltas y tarjetas
+
     for (int i = 0; i < 22; i++) {
         Medidor::it();
 
@@ -103,9 +124,9 @@ void Partido::simular() {
         }
     }
 
-    
-    // CONSOLIDAR PARTIDO 
    
+    // Consolidar estadísticas
+ 
     for (int i = 0; i < local->getCantidadJugadores(); i++) {
         Medidor::it();
         Jugador* j = local->getJugador(i);
@@ -119,8 +140,8 @@ void Partido::simular() {
     }
 
     
-    // ACTUALIZAR EQUIPOS
-  
+    // Actualizar equipos
+
     local->setGolesFavor(local->getGolesFavor() + golesLocal);
     local->setGolesContra(local->getGolesContra() + golesVisitante);
 
@@ -147,9 +168,18 @@ void Partido::simular() {
     Medidor::it();
 }
 
+
 void Partido::printResumen() const {
     std::cout << local->getPais() << " "
               << golesLocal << " - "
               << golesVisitante << " "
               << visitante->getPais() << std::endl;
 }
+
+
+// Getters (definidos en .cpp)
+
+Equipo* Partido::getLocal() const { return local; }
+Equipo* Partido::getVisitante() const { return visitante; }
+int Partido::getGolesLocal() const { return golesLocal; }
+int Partido::getGolesVisitante() const { return golesVisitante; }
