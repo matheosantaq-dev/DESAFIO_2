@@ -2,46 +2,67 @@
 #include "Medidor.h"
 #include <iostream>
 
-
 // Constructor
-
 Grupo::Grupo(char id) : id(id), numPartidos(0) {}
 
-
 // Destructor
-
 Grupo::~Grupo() {
     for (int i = 0; i < partidos.getTamanio(); i++) {
         Medidor::it();
 
         Partido* p = partidos.obtener(i);
-        if (p) delete p;
+        if (p) {
+            delete p;
+        }
     }
 }
 
+// Agregar equipo con restricción de confederación
+bool Grupo::agregarEquipo(Equipo* equipo) {
+    if (!equipo || equipos.getTamanio() >= 4) {
+        return false;
+    }
 
-// Agregar equipo
+    int mismaConf = 0;
 
-void Grupo::agregarEquipo(Equipo* equipo) {
-    if (equipos.getTamanio() < 4) {
+    for (int i = 0; i < equipos.getTamanio(); i++) {
         Medidor::it();
-        equipos.insertarAlFinal(equipo);
+
+        Equipo* actual = equipos.obtener(i);
+
+        if (actual &&
+            actual->getConfederacion() == equipo->getConfederacion()) {
+            mismaConf++;
+        }
     }
+
+    // Restricción:
+    // UEFA máximo 2
+    // otras máximo 1
+    if (equipo->getConfederacion() == "UEFA") {
+        if (mismaConf >= 2) return false;
+    }
+    else {
+        if (mismaConf >= 1) return false;
+    }
+
+    equipos.insertarAlFinal(equipo);
+    return true;
 }
 
-
-// Organizar partidos (round-robin)
-
+// Organizar encuentros
 void Grupo::organizarEncuentros(const std::string& fechaInicio) {
+    if (equipos.getTamanio() < 4) {
+        return;
+    }
 
-    if (equipos.getTamanio() < 4) return;
-
-    // Limpiar partidos anteriores 
+    // Limpiar partidos previos
     for (int i = 0; i < partidos.getTamanio(); i++) {
         Partido* p = partidos.obtener(i);
         if (p) delete p;
     }
-    partidos.limpiar(); 
+
+    partidos.limpiar();
     numPartidos = 0;
 
     int emparejamientos[6][2] = {
@@ -50,55 +71,55 @@ void Grupo::organizarEncuentros(const std::string& fechaInicio) {
         {0,3}, {1,2}
     };
 
-    for (int p = 0; p < 6; p++) {
+    for (int i = 0; i < 6; i++) {
         Medidor::it();
 
-        Equipo* e1 = equipos.obtener(emparejamientos[p][0]);
-        Equipo* e2 = equipos.obtener(emparejamientos[p][1]);
+        Equipo* e1 = equipos.obtener(emparejamientos[i][0]);
+        Equipo* e2 = equipos.obtener(emparejamientos[i][1]);
 
         if (e1 && e2) {
-            Partido* nuevo = new Partido(e1, e2);
+            Partido* nuevo = new Partido(
+                e1,
+                e2,
+                fechaInicio,
+                "nombreSede"
+            );
+
             partidos.insertarAlFinal(nuevo);
             numPartidos++;
-
-            Medidor::add(sizeof(Partido));
         }
     }
 }
 
-
+// Simular fase grupal
 void Grupo::simularFaseGrupal() {
     for (int i = 0; i < partidos.getTamanio(); i++) {
         Medidor::it();
 
         Partido* p = partidos.obtener(i);
-        if (p) p->simular();
+        if (p) {
+            p->simular();
+        }
     }
 }
 
-
 // Mostrar resultados
-
 void Grupo::mostrarResultados() const {
     std::cout << "\nResultados Grupo " << id << ":\n";
 
     for (int i = 0; i < partidos.getTamanio(); i++) {
         Partido* p = partidos.obtener(i);
-        if (p) p->printResumen();
+
+        if (p) {
+            p->printResumen();
+        }
     }
 }
 
-
-// Tabla de posiciones 
-
-void Grupo::mostrarTabla() {
-
-    std::cout << "\n--- TABLA GRUPO " << id << " ---\n";
-
-    // Ordenamiento tipo burbuja
+// Ordenar tabla
+void Grupo::ordenarTabla() {
     for (int i = 0; i < equipos.getTamanio(); i++) {
         for (int j = i + 1; j < equipos.getTamanio(); j++) {
-
             Medidor::it();
 
             Equipo* a = equipos.obtener(i);
@@ -109,16 +130,32 @@ void Grupo::mostrarTabla() {
             int dgA = a->getGolesFavor() - a->getGolesContra();
             int dgB = b->getGolesFavor() - b->getGolesContra();
 
-            if (b->getPuntos() > a->getPuntos() ||
-               (b->getPuntos() == a->getPuntos() && dgB > dgA) ||
-               (b->getPuntos() == a->getPuntos() && dgB == dgA &&
-                b->getGolesFavor() > a->getGolesFavor())) {
+            bool cambiar = false;
 
+            if (b->getPuntos() > a->getPuntos()) {
+                cambiar = true;
+            }
+            else if (b->getPuntos() == a->getPuntos() && dgB > dgA) {
+                cambiar = true;
+            }
+            else if (b->getPuntos() == a->getPuntos() &&
+                     dgB == dgA &&
+                     b->getGolesFavor() > a->getGolesFavor()) {
+                cambiar = true;
+            }
+
+            if (cambiar) {
                 equipos.intercambiar(i, j);
             }
         }
     }
+}
 
+// Mostrar tabla
+void Grupo::mostrarTabla() {
+    ordenarTabla();
+
+    std::cout << "\n--- TABLA GRUPO " << id << " ---\n";
     std::cout << "Equipo\tPTS\tDG\tGF\n";
 
     for (int i = 0; i < equipos.getTamanio(); i++) {
@@ -135,4 +172,21 @@ void Grupo::mostrarTabla() {
     }
 
     std::cout << "-----------------------------\n";
+}
+
+// Getters
+char Grupo::getId() const {
+    return id;
+}
+
+int Grupo::getNumEquipos() const {
+    return equipos.getTamanio();
+}
+
+int Grupo::getNumPartidos() const {
+    return numPartidos;
+}
+
+Equipo* Grupo::getEquipo(int index) {
+    return equipos.obtener(index);
 }
