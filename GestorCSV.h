@@ -12,8 +12,10 @@ private:
     std::ifstream archivo;
 
 public:
-    // Constructor
-    GestorCSV(std::string ruta = "selecciones_clasificadas_mundial.csv");
+   
+   // Constructor
+    GestorCSV(std::string ruta = "C:/Users/PC/Documents/untitled13/build/Desktop_Qt_6_10_2_MinGW_64_bit-Debug/selecciones_clasificadas_mundial.csv");
+
 
     // Destructor
     ~GestorCSV();
