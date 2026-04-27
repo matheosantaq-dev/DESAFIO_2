@@ -23,6 +23,8 @@ private:
     Equipo* subcampeon;
     Equipo* tercerLugar;
 
+    Equipo* jugarPartido(Equipo* a, Equipo* b, Equipo*& perdedor);
+
 public:
     // Constructor / Destructor
     Torneo();
@@ -43,7 +45,7 @@ public:
     void generarEstadisticas();
     void mostrarPodio();
 
-    // guardar resultados en CSV
+    // Guardar resultados en CSV (sobrescribe)
     void guardarCSV(const std::string& ruta, ListaDinamica<Equipo*>& equipos);
 
     // Getter
