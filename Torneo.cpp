@@ -1,6 +1,7 @@
 #include "Torneo.h"
 #include "Medidor.h"
 #include <iostream>
+#include <fstream>
 
 // Constructor
 Torneo::Torneo()
@@ -41,7 +42,8 @@ void Torneo::crearGrupos() {
         Grupo* g = new Grupo('A' + i);
 
         for (int b = 0; b < 4; b++) {
-            g->agregarEquipo(bombos[b][i]);
+            if (bombos[b][i])
+                g->agregarEquipo(bombos[b][i]);
         }
 
         g->organizarEncuentros("01/06/2026");
@@ -56,6 +58,8 @@ void Torneo::simularFaseGrupos() {
 
     for (int i = 0; i < grupos.getTamanio(); i++) {
         Grupo* g = grupos.obtener(i);
+        if (!g) continue;
+
         g->simularFaseGrupal();
         g->mostrarResultados();
     }
@@ -71,6 +75,7 @@ void Torneo::clasificarEquipos() {
     for (int i = 0; i < grupos.getTamanio(); i++) {
 
         Grupo* g = grupos.obtener(i);
+        if (!g) continue;
 
         Equipo** top2 = g->getClasificados();
 
@@ -85,8 +90,10 @@ void Torneo::clasificarEquipos() {
               << " equipos.\n";
 }
 
-//  FUNCIÓN CLAVE
+// Partido helper
 Equipo* jugarPartido(Equipo* a, Equipo* b, Equipo*& perdedor) {
+
+    if (!a || !b) return nullptr;
 
     Partido p(a, b, "20/06/2026", "Estadio");
     p.simular(true);
@@ -101,22 +108,27 @@ Equipo* jugarPartido(Equipo* a, Equipo* b, Equipo*& perdedor) {
     }
 }
 
+// Eliminatorias
 void Torneo::simularEliminatorias() {
 
-    ListaDinamica<Equipo*> ronda = clasificados;
+    ListaDinamica<Equipo*> ronda;
 
-    //  PRIMER FILTRO: 24 → 16
+    for (int i = 0; i < clasificados.getTamanio(); i++) {
+        ronda.insertarAlFinal(clasificados.obtener(i));
+    }
+
+    // 24 → 16
     ListaDinamica<Equipo*> ronda16;
 
     std::cout << "\n=== DIECISEISAVOS ===\n";
 
-    for (int i = 0; i < 16; i++) {
+    for (int i = 0; i < 16 && i < ronda.getTamanio(); i++) {
         ronda16.insertarAlFinal(ronda.obtener(i));
     }
 
     ronda = ronda16;
 
-    // RONDAS NORMALES
+    // Rondas
     while (ronda.getTamanio() > 4) {
 
         ListaDinamica<Equipo*> siguiente;
@@ -125,20 +137,22 @@ void Torneo::simularEliminatorias() {
 
         for (int i = 0; i < ronda.getTamanio(); i += 2) {
 
-            Equipo* perdedor;
+            Equipo* perdedor = nullptr;
+
             Equipo* ganador = jugarPartido(
                 ronda.obtener(i),
                 ronda.obtener(i + 1),
                 perdedor
                 );
 
-            siguiente.insertarAlFinal(ganador);
+            if (ganador)
+                siguiente.insertarAlFinal(ganador);
         }
 
         ronda = siguiente;
     }
 
-    //  SEMIFINALES
+    // Semifinales
     std::cout << "\n=== SEMIFINALES ===\n";
 
     Equipo* perd1;
@@ -147,13 +161,13 @@ void Torneo::simularEliminatorias() {
     Equipo* perd2;
     Equipo* finalista2 = jugarPartido(ronda.obtener(2), ronda.obtener(3), perd2);
 
-    //  TERCER PUESTO
+    // Tercer puesto
     std::cout << "\n=== TERCER PUESTO ===\n";
 
     Equipo* basura;
     tercerLugar = jugarPartido(perd1, perd2, basura);
 
-    // FINAL
+    // Final
     std::cout << "\n=== FINAL ===\n";
 
     Equipo* perdFinal;
@@ -165,7 +179,8 @@ void Torneo::simularEliminatorias() {
 void Torneo::generarEstadisticas() {
 
     for (int i = 0; i < grupos.getTamanio(); i++) {
-        grupos.obtener(i)->mostrarTabla();
+        Grupo* g = grupos.obtener(i);
+        if (g) g->mostrarTabla();
     }
 
     mostrarPodio();
@@ -176,18 +191,50 @@ void Torneo::mostrarPodio() {
 
     std::cout << "\n=========== PODIO MUNDIAL ===========\n";
 
-    if (campeon)
-        std::cout << "Campeon: " << campeon->getPais() << "\n";
-    else
-        std::cout << "Campeon: N/A\n";
+    std::cout << "Campeon: "
+              << (campeon ? campeon->getPais() : "N/A") << "\n";
 
-    if (subcampeon)
-        std::cout << "Subcampeon: " << subcampeon->getPais() << "\n";
+    std::cout << "Subcampeon: "
+              << (subcampeon ? subcampeon->getPais() : "N/A") << "\n";
 
-    if (tercerLugar)
-        std::cout << "Tercer Lugar: " << tercerLugar->getPais() << "\n";
+    std::cout << "Tercer Lugar: "
+              << (tercerLugar ? tercerLugar->getPais() : "N/A") << "\n";
 
     std::cout << "=====================================\n";
+}
+
+//Guardar CSV
+void Torneo::guardarCSV(const std::string& ruta,
+                        ListaDinamica<Equipo*>& equipos) {
+
+    std::ofstream file(ruta);
+
+    if (!file.is_open()) {
+        std::cout << "Error al guardar CSV\n";
+        return;
+    }
+
+    file << "Pais,Ranking,GF,GC,Puntos,V,E,D\n";
+
+    for (int i = 0; i < equipos.getTamanio(); i++) {
+
+        Equipo* e = equipos.obtener(i);
+        if (!e) continue;
+
+        file << e->getPais() << ","
+             << e->getRanking() << ","
+             << e->getGolesFavor() << ","
+             << e->getGolesContra() << ","
+             << e->getPuntos() << ","
+             << e->getVictorias() << ","
+             << e->getEmpates() << ","
+             << e->getDerrotas()
+             << "\n";
+    }
+
+    file.close();
+
+    std::cout << "CSV actualizado correctamente\n";
 }
 
 // Getter
