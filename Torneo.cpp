@@ -79,10 +79,11 @@ void Torneo::clasificarEquipos() {
 
         Equipo** top2 = g->getClasificados();
 
-        clasificados.insertarAlFinal(top2[0]);
-        clasificados.insertarAlFinal(top2[1]);
-
-        delete[] top2;
+        if (top2) {
+            clasificados.insertarAlFinal(top2[0]);
+            clasificados.insertarAlFinal(top2[1]);
+            delete[] top2;
+        }
     }
 
     std::cout << "\nClasificados: "
@@ -90,8 +91,8 @@ void Torneo::clasificarEquipos() {
               << " equipos.\n";
 }
 
-// Partido helper
-Equipo* jugarPartido(Equipo* a, Equipo* b, Equipo*& perdedor) {
+// AHORA COMO MÉTODO PRIVADO (MEJOR DISEÑO)
+Equipo* Torneo::jugarPartido(Equipo* a, Equipo* b, Equipo*& perdedor) {
 
     if (!a || !b) return nullptr;
 
@@ -128,7 +129,7 @@ void Torneo::simularEliminatorias() {
 
     ronda = ronda16;
 
-    // Rondas
+    // Rondas normales
     while (ronda.getTamanio() > 4) {
 
         ListaDinamica<Equipo*> siguiente;
@@ -152,25 +153,31 @@ void Torneo::simularEliminatorias() {
         ronda = siguiente;
     }
 
+    // Validación extra
+    if (ronda.getTamanio() < 4) {
+        std::cout << "Error en eliminatorias\n";
+        return;
+    }
+
     // Semifinales
     std::cout << "\n=== SEMIFINALES ===\n";
 
-    Equipo* perd1;
+    Equipo* perd1 = nullptr;
     Equipo* finalista1 = jugarPartido(ronda.obtener(0), ronda.obtener(1), perd1);
 
-    Equipo* perd2;
+    Equipo* perd2 = nullptr;
     Equipo* finalista2 = jugarPartido(ronda.obtener(2), ronda.obtener(3), perd2);
 
     // Tercer puesto
     std::cout << "\n=== TERCER PUESTO ===\n";
 
-    Equipo* basura;
+    Equipo* basura = nullptr;
     tercerLugar = jugarPartido(perd1, perd2, basura);
 
     // Final
     std::cout << "\n=== FINAL ===\n";
 
-    Equipo* perdFinal;
+    Equipo* perdFinal = nullptr;
     campeon = jugarPartido(finalista1, finalista2, perdFinal);
     subcampeon = perdFinal;
 }
@@ -203,7 +210,7 @@ void Torneo::mostrarPodio() {
     std::cout << "=====================================\n";
 }
 
-//Guardar CSV
+// Guardar CSV (sobrescribe)
 void Torneo::guardarCSV(const std::string& ruta,
                         ListaDinamica<Equipo*>& equipos) {
 
