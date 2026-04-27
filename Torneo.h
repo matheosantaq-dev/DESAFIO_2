@@ -39,16 +39,12 @@ public:
     // Eliminatorias
     void simularEliminatorias();
 
-    //  FUNCIÓN CLAVE
-    void jugarRonda(
-        ListaDinamica<Equipo*>& entrada,
-        ListaDinamica<Equipo*>& salida,
-        const std::string& nombreFase
-        );
-
     // Estadísticas
     void generarEstadisticas();
     void mostrarPodio();
+
+    // guardar resultados en CSV
+    void guardarCSV(const std::string& ruta, ListaDinamica<Equipo*>& equipos);
 
     // Getter
     ListaDinamica<Grupo*>& getGrupos();
