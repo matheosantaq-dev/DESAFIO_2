@@ -41,6 +41,7 @@ public:
 
     // Clasificación
     void ordenarTabla();
+    Equipo** getClasificados();
 };
 
 #endif
