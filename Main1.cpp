@@ -4,19 +4,24 @@
 #include <ctime>
 
 int main() {
-    std::cout << "=== INICIANDO PROGRAMA ===\n";
 
     
-    srand(time(0));
+    srand(static_cast<unsigned>(time(nullptr)));
+
+    std::cout << "=== INICIANDO PROGRAMA ===\n";
 
     try {
         Menu menu;
         menu.iniciar();
     }
+    catch (const std::exception& e) {
+        std::cerr << "ERROR: " << e.what() << "\n";
+    }
     catch (...) {
-        std::cerr << "ERROR: El programa crasheó.\n";
+        std::cerr << "ERROR desconocido.\n";
     }
 
     std::cout << "=== FIN DEL PROGRAMA ===\n";
     return 0;
 }
+
