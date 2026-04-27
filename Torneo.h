@@ -2,32 +2,26 @@
 #define TORNEO_H
 
 #include "ListaDinamica.h"
-#include "Grupo.h"
 #include "Equipo.h"
-#include "Partido.h"
+#include "Grupo.h"
+#include <string>
 
 class Torneo {
 private:
-    ListaDinamica<Grupo*> grupos;
-
-    // Bombos oficiales
+    // Bombos (4 bombos de 12 equipos)
     Equipo* bombos[4][12];
 
-    // Clasificados
+    // Estructura del torneo
+    ListaDinamica<Grupo*> grupos;
     ListaDinamica<Equipo*> clasificados;
 
-    // Estadísticas generales
+    // Estadísticas globales
     int totalGoles;
+
+    // Podio
     Equipo* campeon;
     Equipo* subcampeon;
     Equipo* tercerLugar;
-
-    // Métodos auxiliares
-    void avanzarRonda(
-        ListaDinamica<Equipo*>& participantes,
-        ListaDinamica<Equipo*>& ganadores,
-        const std::string& fase
-    );
 
 public:
     // Constructor / Destructor
@@ -38,16 +32,25 @@ public:
     void organizarBombos(ListaDinamica<Equipo*>& listaEquipos);
     void crearGrupos();
 
-    // Simulación
+    // Fase de grupos
     void simularFaseGrupos();
     void clasificarEquipos();
+
+    // Eliminatorias
     void simularEliminatorias();
+
+    //  FUNCIÓN CLAVE
+    void jugarRonda(
+        ListaDinamica<Equipo*>& entrada,
+        ListaDinamica<Equipo*>& salida,
+        const std::string& nombreFase
+        );
 
     // Estadísticas
     void generarEstadisticas();
     void mostrarPodio();
 
-    // Getters
+    // Getter
     ListaDinamica<Grupo*>& getGrupos();
 };
 
