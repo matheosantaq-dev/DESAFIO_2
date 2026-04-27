@@ -29,7 +29,7 @@ void Menu::mostrarOpciones() const {
     std::cout << "Opcion: ";
 }
 
-
+// Cargar datos
 void Menu::cargarDatos() {
     equipos = gestor.cargarEquipos();
 
@@ -41,7 +41,7 @@ void Menu::cargarDatos() {
     }
 }
 
-
+// Organizar torneo
 void Menu::organizarTorneo() {
     if (equipos.getTamanio() < 48) {
         std::cout << "\n ERROR: faltan equipos ("
@@ -55,7 +55,7 @@ void Menu::organizarTorneo() {
     std::cout << "\nGrupos creados correctamente\n";
 }
 
-// Simular
+//  SIMULAR + GUARDAR CSV
 void Menu::simularMundial() {
     if (torneo.getGrupos().getTamanio() == 0) {
         std::cout << "\n Debe organizar el torneo primero\n";
@@ -65,6 +65,11 @@ void Menu::simularMundial() {
     torneo.simularFaseGrupos();
     torneo.simularEliminatorias();
     torneo.generarEstadisticas();
+
+    //  SOBRESCRIBE EL CSV ORIGINAL
+    torneo.guardarCSV("selecciones_clasificadas_mundial.csv", equipos);
+
+    std::cout << "\nCSV actualizado correctamente\n";
 }
 
 // Métricas
@@ -100,4 +105,3 @@ void Menu::iniciar() {
 
     } while (opcion != 5);
 }
-
