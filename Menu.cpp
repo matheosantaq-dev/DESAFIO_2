@@ -3,7 +3,7 @@
 #include <iostream>
 
 Menu::Menu()
-    : gestor("selecciones_clasificadas_mundial.csv") // 🔥 PATH RELATIVO
+    : gestor("selecciones_clasificadas_mundial.csv")
 {
 }
 
@@ -24,9 +24,9 @@ void Menu::mostrarOpciones() const {
     std::cout << "\n1. Cargar selecciones\n";
     std::cout << "2. Organizar torneo\n";
     std::cout << "3. Simular mundial\n";
-    std::cout << "4. Métricas\n";
+    std::cout << "4. Metricas\n";
     std::cout << "5. Salir\n";
-    std::cout << "Opción: ";
+    std::cout << "Opcion: ";
 }
 
 
@@ -37,14 +37,14 @@ void Menu::cargarDatos() {
               << equipos.getTamanio() << "\n";
 
     if (equipos.getTamanio() < 48) {
-        std::cout << "⚠ ERROR: CSV no cargado correctamente\n";
+        std::cout << " ERROR: CSV no cargado correctamente\n";
     }
 }
 
 
 void Menu::organizarTorneo() {
     if (equipos.getTamanio() < 48) {
-        std::cout << "\n❌ ERROR: faltan equipos ("
+        std::cout << "\n ERROR: faltan equipos ("
                   << equipos.getTamanio() << ")\n";
         return;
     }
@@ -58,7 +58,7 @@ void Menu::organizarTorneo() {
 // Simular
 void Menu::simularMundial() {
     if (torneo.getGrupos().getTamanio() == 0) {
-        std::cout << "\n❌ Debe organizar el torneo primero\n";
+        std::cout << "\n Debe organizar el torneo primero\n";
         return;
     }
 
@@ -95,8 +95,9 @@ void Menu::iniciar() {
         case 3: simularMundial(); break;
         case 4: mostrarMetricas(); break;
         case 5: std::cout << "Saliendo...\n"; break;
-        default: std::cout << "Opción inválida\n";
+        default: std::cout << "Opcion invalida\n";
         }
 
     } while (opcion != 5);
 }
+
